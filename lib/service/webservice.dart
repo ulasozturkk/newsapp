@@ -2,15 +2,29 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:newsapp/models/newsArticle.dart';
+import 'package:newsapp/utils/constants.dart';
 
 
 class Webservice {
 
-  Future<List<newsarticle>> fetchTopHeadlines() async {
-
-    String url = "https://newsapi.org/v2/everything?q=tesla&from=2023-02-19&sortBy=publishedAt&apiKey=678b89a96bb34e8e89efef20f3d68bc8";
+  Future<List<newsarticle>> fetchHeadlinesByKeyword(String keyword) async {
     
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(Constants.headlinesByKeyword(keyword)));
+
+    if(response.statusCode == 200){
+      final result = jsonDecode(response.body);
+      Iterable list = result["articles"];
+      return list.map((json) => newsarticle.fromJson(json)).toList();
+
+    }else{
+      throw Exception("failed to load search..");
+    }
+  }
+
+
+  Future<List<newsarticle>> fetchTopHeadlines() async {
+    
+    final response = await http.get(Uri.parse(Constants.topHeadLinesURL));
 
     if(response.statusCode == 200){
 
